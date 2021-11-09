@@ -46,7 +46,7 @@
   <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
   <link href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />
-  
+
 </head>
 <body>
 <p>
@@ -69,14 +69,14 @@
 
 var groups = new vis.DataSet();
 
-  var container = document.getElementById('visualization');
-  var defaultOptions = {
+var container = document.getElementById('visualization');
+var defaultOptions = {
     template: (itemData, element, data) => {
-      if (data.isCluster) {
-        return `<div>${data.items.length} items</div>`;
-      } else {
-        return `<div>${data.content}</div>`;
-      }
+        if (data.isCluster) {
+            return `<div>${data.items.length} items</div>`;
+        } else {
+            return `<div>${data.content}</div>`;
+        }
     },
     stack: true,
     verticalScroll: true,
@@ -85,102 +85,108 @@ var groups = new vis.DataSet();
         item: "bottom"
     },
     margin: {
-      item: 10, // minimal margin between items
-      axis: 5   // minimal margin between items and the axis
+        item: 10, // minimal margin between items
+        axis: 5 // minimal margin between items and the axis
     },
     //zoomKey: 'ctrlKey',
-    groupOrder: 'id',  // groupOrder can be a property name or a sorting function
+    groupOrder: 'id', // groupOrder can be a property name or a sorting function
     maxHeight: "800px",
     tooltip: {
-      template: function(originalItemData, parsedItemData) {
-        return `<span style="color:green">${originalItemData.raw}</span>`;
-      }
+        template: function(originalItemData, parsedItemData) {
+            return `<span style="color:green">${originalItemData.raw}</span>`;
+        }
     }
-  };
-  var items = new vis.DataSet();
+};
+var items = new vis.DataSet();
 
 {% for group in groups %}
-   groups.add({id: {{ group["id"] }}, content: '{{ group["name"] }}'});
-   {% for ev in group["events"] %}
-     items.add({
-       id: {{ ev["id"] }},
-       group: {{ group["id"] }},
-       content: '{{ ev.content }}',
-       raw: '{{ ev.raw|tojson }}'.replace(/\n/g, "<br />"),
-       start: "{{ ev["timestamp"] }}",
-       type: 'box',
-       className: '{{ ev["color"] }}'
-     });
-   {% endfor %}
+groups.add({
+    id: {{ group["id"] }},
+    content: '{{ group["name"] }}'
+});
+{% for ev in group["events"] %}
+items.add({
+    id: {{ ev["id"] }},
+    group: {{ group["id"] }},
+    content: '{{ ev.content }}',
+    raw: '{{ ev.raw|tojson }}'.replace(/\n/g, "<br />"),
+    start: '{{ ev["timestamp"] }}',
+    type: 'box',
+    className: '{{ ev["color"] }}'
+});
+{% endfor %}
 {% endfor %}
 
-  var timeline = new vis.Timeline(container);
-  timeline.setOptions(defaultOptions);
-  timeline.setGroups(groups);
-  timeline.setItems(items);
+var timeline = new vis.Timeline(container);
+timeline.setOptions(defaultOptions);
+timeline.setGroups(groups);
+timeline.setItems(items);
 
-  $('#clusterCheckbox').change(function() {
+$('#clusterCheckbox').change(function() {
     var options = {};
-    if(this.checked) {
-    var clusterOpts = {
-      cluster: {
-        titleTemplate: "{count} events.",
-        showStipes: true,
-      }
-    };
-    Object.assign(options, defaultOptions, clusterOpts);
+    if (this.checked) {
+        var clusterOpts = {
+            cluster: {
+                titleTemplate: "{count} events.",
+                showStipes: true,
+            }
+        };
+        Object.assign(options, defaultOptions, clusterOpts);
     } else {
-    Object.assign(options, defaultOptions);
+        Object.assign(options, defaultOptions);
     }
     timeline.setOptions(options);
-  });
+});
 
-  $('#stackEvents').change(function() {
+$('#stackEvents').change(function() {
     var options = {};
-    if(this.checked) {
-    var stackOpts = {
-      stack: false
-    };
-    Object.assign(options, defaultOptions, stackOpts);
+    if (this.checked) {
+        var stackOpts = {
+            stack: false
+        };
+        Object.assign(options, defaultOptions, stackOpts);
     } else {
-    Object.assign(options, defaultOptions);
+        Object.assign(options, defaultOptions);
     }
     timeline.setOptions(options);
-  });
+});
 
-  $('#filterSaltEvents').change(function() {
-	var filteredItems = items.get({
-	  filter: function (item) {
-	    return item.content.includes($('#filterSaltEvents').val()) || item.raw.includes($('#filterSaltEvents').val());
-	  }
-	});
-        timeline.setItems(filteredItems);
-        timeline.redraw();
-  });
+$('#filterSaltEvents').change(function() {
+    var filteredItems = items.get({
+        filter: function(item) {
+            return item.content.includes($('#filterSaltEvents').val()) || item.raw.includes($('#filterSaltEvents').val());
+        }
+    });
+    timeline.setItems(filteredItems);
+    timeline.redraw();
+});
 
-  var selectedItem = 0;
+var selectedItem = 0;
 
-  timeline.on('select', function (properties) {
-     selectedItem = properties.items;
-  });
+timeline.on('select', function(properties) {
+    selectedItem = properties.items;
+});
 
-  document.onkeydown = function (event) {
-
-      switch (event.keyCode) {
-         case 37:
+document.onkeydown = function(event) {
+    switch (event.keyCode) {
+        case 37:
             if (selectedItem >= 0) {
-		selectedItem--;
-	    }
+                selectedItem--;
+            }
             var focus = document.getElementById('focus');
-            timeline.setSelection(selectedItem, {focus: focus.checked});
+            timeline.setSelection(selectedItem, {
+                focus: focus.checked
+            });
             break;
-         case 39:
+        case 39:
             selectedItem++;
             var focus = document.getElementById('focus');
-            timeline.setSelection(selectedItem, {focus: focus.checked});
+            timeline.setSelection(selectedItem, {
+                focus: focus.checked
+            });
             break;
-     }
-  };
+    }
+};
 
 </script>
 </body>
