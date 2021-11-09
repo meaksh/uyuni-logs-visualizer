@@ -54,6 +54,7 @@ with open("salt-events.txt") as f:
             new_item = {
                     "id": event_counter,
                     "content": tag,
+                    "color": "green",
                     "raw": pprint.pformat(content),
                     "timestamp": content["_stamp"],
             }
@@ -75,8 +76,7 @@ with open("salt-events.txt") as f:
 
             if new_item.get("type", "") not in EXCLUDED_SALT_EVENTS:
                 data_dict["groups"][0]["events"].append(new_item)
-
-            event_counter += 1
+                event_counter += 1
 
 ##################################################################
 
@@ -101,17 +101,18 @@ with open("rhn_web_ui.log") as f:
            # TODO: Adjust timezone
            datetime_obj = datetime_obj - datetime.timedelta(hours=1)
 
-           # Exclude events OLDER than first Salt event
-           if datetime_obj < datetime.datetime.fromisoformat(data_dict["groups"][0]["events"][0]["timestamp"]):
-               continue
+#           # Exclude events OLDER than first Salt event
+#           if datetime_obj < datetime.datetime.fromisoformat(data_dict["groups"][0]["events"][0]["timestamp"]):
+#               continue
 
-           if "LoginController - LOCAL AUTH FAILURE:" in content :
+           if "LoginController - LOCAL AUTH FAILURE:" in content or "common.DownloadFile - " in content:
                continue
 
            new_item = {
                    "id": event_counter,
-                   "content": "{} - {}".format(level, thread),
-                   "raw": content,
+                   "content": level,
+                   "raw": "{} - {}".format(level, content),
+                    "color": "orange",
                    "timestamp": timestamp,
            }
 
