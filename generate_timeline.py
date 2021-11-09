@@ -37,11 +37,11 @@ data_dict["groups"][0]["events"] = []
 with open("salt-events.txt") as f:
     in_data = f.readlines()
     for i, line in enumerate(in_data):
-        if line[0].isalnum():
+        if re.match("^.*\t{", line):
             # Begin tag and json
             tag, content = line.split("\t")
             j = i
-            while j < len(in_data)-1 and not in_data[j+1][0].isalnum():
+            while j < len(in_data)-1 and in_data[j] != "}\n":
                 content += in_data[j+1]
                 j += 1
             try:
