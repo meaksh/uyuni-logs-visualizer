@@ -119,5 +119,67 @@ with open("rhn_web_ui.log") as f:
            data_dict["groups"][3]["events"].append(new_item)
            event_counter += 1
 
+##################################################################
+
+data_dict["groups"][2]["events"] = []
+
+with open("api") as f:
+    in_data = f.readlines()
+
+    for i, line in enumerate(in_data):
+      if re.match("^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3} .*", line):
+           timestamp, component, level, content = re.match("^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3}) (\[.*\])(\[.*\])(\[.*\].*)", line).groups()
+           if "ERROR" in level:
+               continue
+
+           j = i
+           while j < len(in_data)-1 and not re.match("^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3} .*", in_data[j+1]):
+               content += in_data[j+1]
+               j += 1
+
+           datetime_obj = datetime.datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S,%f")
+
+           new_item = {
+                   "id": event_counter,
+                   "content": level,
+                   "raw": "{} - {}".format(component, content),
+                    "color": "red",
+                   "timestamp": timestamp,
+           }
+
+           data_dict["groups"][2]["events"].append(new_item)
+           event_counter += 1
+
+##################################################################
+
+data_dict["groups"][1]["events"] = []
+
+with open("master") as f:
+    in_data = f.readlines()
+
+    for i, line in enumerate(in_data):
+      if re.match("^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3} .*", line):
+           timestamp, component, level, content = re.match("^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3}) (\[.*\])(\[.*\])(\[.*\].*)", line).groups()
+           if "ERROR" in level:
+               continue
+
+           j = i
+           while j < len(in_data)-1 and not re.match("^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3} .*", in_data[j+1]):
+               content += in_data[j+1]
+               j += 1
+
+           datetime_obj = datetime.datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S,%f")
+
+           new_item = {
+                   "id": event_counter,
+                   "content": level,
+                   "raw": "{} - {}".format(component, content),
+                    "color": "blue",
+                   "timestamp": timestamp,
+           }
+
+           data_dict["groups"][1]["events"].append(new_item)
+           event_counter += 1
+
 output = template.render(**data_dict)
 print(output)
