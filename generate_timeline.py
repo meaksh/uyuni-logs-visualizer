@@ -16,8 +16,8 @@ template = template_env.get_template("_index.jinja")
 event_counter = 0
 
 data_dict = {
-    "title": "Uyuni Logs visualizer",
-    "body": "This is the body of the page",
+    "title": "Uyuni Logs Visualizer",
+    "body": "Hacked during SUSE DCM workshop 2021",
     "groups": [
         {"id": 0, "name": "Salt Event Bus"},
         {"id": 1, "name": "Salt Master"},
