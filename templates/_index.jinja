@@ -9,10 +9,13 @@
       font-size: 11pt;
     }
 
+    table {
+      width: 100%;
+    }
+
     #visualization {
       box-sizing: border-box;
       width: 100%;
-      height: 300px;
     }
 
     .vis-item.green {
@@ -35,6 +38,15 @@
       border-color: orange;
     }
 
+    #current_event {
+      overflow: scroll;
+      height: 150px;
+      width: 0px;
+      min-width: 99%;
+      border: 1px solid black;
+      padding: 5px;
+    }
+
   </style>
 
   <!-- note: moment.js must be loaded before vis-timeline-graph2d or the embedded version of moment.js is used -->
@@ -49,25 +61,51 @@
 
 </head>
 <body>
+
+<div>
+<table>
+<tr>
+<td width="20%">
+<h2>{{ title }}</h2>
 <p>
    {{ body }}
 </p>
 <p>
+<span>
 <div>
-<span>Event filter: </span><input id="filterSaltEvents"></input>
-</br>
-<input type="checkbox" id="stackEvents"> Do not stack events</input>
-</br>
-<input type="checkbox" id="clusterCheckbox"> Enable clustering</input>
-</br>
-<input type="checkbox" id="focus" checked> Focus on selection</input>
-</br>
+	<label><input type="checkbox" id="stackEvents"> Do not stack events</input></label>
 </div>
+<div>
+	<label><input type="checkbox" id="clusterCheckbox"> Enable clustering</input></label>
+</div>
+<div>
+	<label><input type="checkbox" id="focus" checked> Focus on selection</input></label>
+</div>
+<div>
+</br>
+<span>Event filter: </span><input id="filterSaltEvents"></input>
+</div>
+</span>
 </p>
+</td>
+<td width="80%">
+<div style="margin-bottom: 5px;">
+	<label><b>Selected Event: </b><span id="current_event_name"></span></label>
+</div>
+<span>
+	<div id="current_event"></div>
+</span>
+</td>
+</tr>
+</table>
+</div>
 <div id="visualization"></div>
 <script>
 
 var groups = new vis.DataSet();
+
+// Define height depending the current window
+var timelineHeight = Math.round($(window).height() * 0.76) + 'px';
 
 var container = document.getElementById('visualization');
 var defaultOptions = {
@@ -90,9 +128,11 @@ var defaultOptions = {
     },
     //zoomKey: 'ctrlKey',
     groupOrder: 'id', // groupOrder can be a property name or a sorting function
-    maxHeight: "800px",
+    height: timelineHeight,
     tooltip: {
         template: function(originalItemData, parsedItemData) {
+	    $("#current_event_name").text(`${originalItemData.content}`);
+	    $("#current_event").html(`<div style="style: bold; padding: 5px">${originalItemData.content}</div><span style="color:green; padding: 5px">${originalItemData.raw}</span>`);
             return `<span style="color:green">${originalItemData.raw}</span>`;
         }
     }
