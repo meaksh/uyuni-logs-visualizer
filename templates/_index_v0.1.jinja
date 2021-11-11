@@ -7,7 +7,6 @@
     body, html {
       font-family: arial, sans-serif;
       font-size: 11pt;
-      height: 100%;
     }
 
     table {
@@ -65,7 +64,7 @@
 
 <div>
 <table>
-<tr style="height: 20%">
+<tr>
 <td width="20%">
 <h2>{{ title }}</h2>
 <p>
@@ -74,24 +73,13 @@
 <p>
 <span>
 <div>
-	<label><input type="checkbox" id="stackEvents"> Stack events</input></label>
+	<label><input type="checkbox" id="stackEvents"> Do not stack events</input></label>
 </div>
 <div>
 	<label><input type="checkbox" id="clusterCheckbox"> Enable clustering</input></label>
 </div>
 <div>
 	<label><input type="checkbox" id="focus" checked> Focus on selection</input></label>
-</div>
-<hr>
-<div>
-Hide the following Salt events:
-</div>
-<div>
-<label><input type="checkbox" id="hideSaltAuth"> auth</input></label>
-<label><input type="checkbox" id="hideSaltJob"> job</input></label>
-<label><input type="checkbox" id="hideSaltJobReturn"> job return</input></label>
-<label><input type="checkbox" id="hideSaltBatch"> batch</input></label>
-<label><input type="checkbox" id="hideSaltMinion"> minion event</input></label>
 </div>
 <div>
 </br>
@@ -103,8 +91,6 @@ Hide the following Salt events:
 <td width="80%">
 <div style="margin-bottom: 5px;">
 	<label><b>Selected Event: </b><span id="current_event_name"></span></label>
-	</br>
-	<label><b>Timestamp: </b><span id="current_event_timestamp"></span></label>
 </div>
 <span>
 	<div id="current_event"></div>
@@ -130,7 +116,7 @@ var defaultOptions = {
             return `<div>${data.content}</div>`;
         }
     },
-    stack: false,
+    stack: true,
     verticalScroll: true,
     orientation: {
         axis: "both",
@@ -141,13 +127,11 @@ var defaultOptions = {
         axis: 5 // minimal margin between items and the axis
     },
     //zoomKey: 'ctrlKey',
-    //groupOrder: 'id', // groupOrder can be a property name or a sorting function
-    groupOrder: 'content', // groupOrder can be a property name or a sorting function
+    groupOrder: 'id', // groupOrder can be a property name or a sorting function
     height: timelineHeight,
     tooltip: {
         template: function(originalItemData, parsedItemData) {
 	    $("#current_event_name").text(`${originalItemData.content}`);
-	    $("#current_event_timestamp").text(`${originalItemData.start}`);
 	    $("#current_event").html(`<div style="style: bold; padding: 5px">${originalItemData.content}</div><span style="color:green; padding: 5px">${originalItemData.raw}</span>`);
             return `<span style="color:green">${originalItemData.raw}</span>`;
         }
@@ -198,45 +182,13 @@ $('#stackEvents').change(function() {
     var options = {};
     if (this.checked) {
         var stackOpts = {
-            stack: true
+            stack: false
         };
         Object.assign(options, defaultOptions, stackOpts);
     } else {
         Object.assign(options, defaultOptions);
     }
     timeline.setOptions(options);
-});
-
-$('#hideSaltAuth').change(function() {
-    if (this.checked) {
-        var filteredItems = items.get({
-            filter: function(item) {
-                return item.type != "auth";
-            }
-        });
-        timeline.setItems(filteredItems);
-        timeline.redraw();
-    }
-    else {
-        timeline.setItems(items);
-        timeline.redraw();
-    }
-});
-
-$('#hideSaltJobReturn').change(function() {
-    if (this.checked) {
-        var filteredItems = items.get({
-            filter: function(item) {
-                return item.type != "job_return";
-            }
-        });
-        timeline.setItems(filteredItems);
-        timeline.redraw();
-    }
-    else {
-        timeline.setItems(items);
-        timeline.redraw();
-    }
 });
 
 $('#filterSaltEvents').change(function() {
