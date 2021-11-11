@@ -1,3 +1,4 @@
+import argparse
 import datetime
 import json
 import os
@@ -5,6 +6,46 @@ import pprint
 import re
 
 import jinja2
+
+parser = argparse.ArgumentParser(description="Generate a HTML view of Uyuni logs.")
+parser.add_argument(
+    "-o",
+    "--output",
+    metavar="OUTPUT_FILE",
+    action="store",
+    type=str,
+    default="output.html",
+    help="generated output HTML file (default: output.html)",
+)
+
+parser.add_argument(
+    "-f",
+    "--from",
+    metavar="datetime",
+    action="store",
+    dest="_from",
+    type=str,
+    help="Only events after this datetime. (Example: 2021-11-11T16:23:28.804535)",
+)
+
+parser.add_argument(
+    "-u",
+    "--until",
+    metavar="datetime",
+    action="store",
+    dest="_until",
+    type=str,
+    help="Only events before this datetime. (Example: 2021-11-11T16:23:28.804535)",
+)
+
+args = parser.parse_args()
+
+if args._from:
+    try:
+        datetime.datetime.fromisoformat(args._from)
+    except ValueError:
+        print("ERROR: '{}' is not a valid datetime".format(args._from))
+        exit(1)
 
 templates_dir = os.path.join(os.path.dirname(__file__), "./templates")
 
@@ -50,6 +91,18 @@ with open("salt-events.txt") as f:
             except Exception as exc:
                 print("Error parsing JSON -> {}".format(content))
                 print(exc)
+                continue
+
+            # Exclude events older than given datetime
+            if args._from and datetime.datetime.fromisoformat(
+                content["_stamp"]
+            ) < datetime.datetime.fromisoformat(args._from):
+                continue
+
+            # Exclude events newer than given datetime
+            if args._until and datetime.datetime.fromisoformat(
+                content["_stamp"]
+            ) > datetime.datetime.fromisoformat(args._until):
                 continue
 
             new_item = {
@@ -107,9 +160,17 @@ with open("rhn_web_ui.log") as f:
             # TODO: Adjust timezone
             datetime_obj = datetime_obj - datetime.timedelta(hours=1)
 
-            #           # Exclude events OLDER than first Salt event
-            #           if datetime_obj < datetime.datetime.fromisoformat(data_dict["groups"][0]["events"][0]["timestamp"]):
-            #               continue
+            # Exclude events older than given datetime
+            if args._from and datetime_obj < datetime.datetime.fromisoformat(
+                args._from
+            ):
+                continue
+
+            # Exclude events rewer than given datetime
+            if args._until and datetime_obj > datetime.datetime.fromisoformat(
+                args._until
+            ):
+                continue
 
             if (
                 "LoginController - LOCAL AUTH FAILURE:" in content
@@ -153,6 +214,18 @@ with open("api") as f:
 
             datetime_obj = datetime.datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S,%f")
 
+            # Exclude events older than given datetime
+            if args._from and datetime_obj < datetime.datetime.fromisoformat(
+                args._from
+            ):
+                continue
+
+            # Exclude events rewer than given datetime
+            if args._until and datetime_obj > datetime.datetime.fromisoformat(
+                args._until
+            ):
+                continue
+
             new_item = {
                 "id": event_counter,
                 "content": level,
@@ -189,6 +262,18 @@ with open("master") as f:
 
             datetime_obj = datetime.datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S,%f")
 
+            # Exclude events older than given datetime
+            if args._from and datetime_obj < datetime.datetime.fromisoformat(
+                args._from
+            ):
+                continue
+
+            # Exclude events rewer than given datetime
+            if args._until and datetime_obj > datetime.datetime.fromisoformat(
+                args._until
+            ):
+                continue
+
             new_item = {
                 "id": event_counter,
                 "content": level,
@@ -201,4 +286,6 @@ with open("master") as f:
             event_counter += 1
 
 output = template.render(**data_dict)
-print(output)
+
+with open(args.output, "w") as f:
+    f.write(output)
