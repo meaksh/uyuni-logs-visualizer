@@ -58,7 +58,7 @@ event_counter = 0
 
 data_dict = {
     "title": "Uyuni Logs Visualizer",
-    "body": "Hacked during SUSE DCM workshop 2021",
+    "body": "Hacked during DCM workshop 2021 at SUSE",
     "groups": [
         {"id": 0, "name": "Salt Event Bus"},
         {"id": 1, "name": "Salt Master"},
@@ -66,6 +66,7 @@ data_dict = {
         {"id": 3, "name": "Java Web UI"},
         {"id": 4, "name": "Java Taskomatic"},
         {"id": 5, "name": "PostgreSQL"},
+        {"id": 6, "name": "Test group"},
     ],
 }
 
