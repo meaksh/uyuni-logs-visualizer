@@ -43,6 +43,13 @@ parser.add_argument(
     help="Only events before this datetime. (Example: 2021-11-11T16:23:28.804535)",
 )
 
+parser.add_argument(
+    "-s",
+    "--supportconfig-path",
+    type=str,
+    help="Path to the unpacked supportconfig",
+)
+
 args = parser.parse_args()
 
 if args._from:
