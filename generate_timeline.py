@@ -44,6 +44,13 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    "-p",
+    "--logs-path",
+    type=str,
+    help="Path to logs files",
+)
+
+parser.add_argument(
     "-s",
     "--supportconfig-path",
     type=str,
@@ -58,6 +65,10 @@ if args._from:
     except ValueError:
         log.error("ERROR: '{}' is not a valid datetime".format(args._from))
         exit(1)
+
+if bool(args.logs_path) == bool(args.supportconfig_path):
+    log.error("ERROR: You must specify either a logs path or supportconfig path")
+    exit(1)
 
 templates_dir = os.path.join(os.path.dirname(__file__), "./templates")
 
@@ -82,16 +93,16 @@ template_data = {
 
 try:
     template_data["groups"][0]["events"] = collectors.from_salt_events(
-        "_logs/salt-events.txt", args._from, args._until
+        os.path.join(args.logs_path, "salt-events.txt"), args._from, args._until
     )
     template_data["groups"][1]["events"] = collectors.from_salt_master(
-        "_logs/master", args._from, args._until
+        os.path.join(args.logs_path, "master"), args._from, args._until
     )
     template_data["groups"][2]["events"] = collectors.from_salt_api(
-        "_logs/api", args._from, args._until
+        os.path.join(args.logs_path, "api"), args._from, args._until
     )
     template_data["groups"][3]["events"] = collectors.from_java_web_ui(
-        "_logs/rhn_web_ui.log", args._from, args._until
+        os.path.join(args.logs_path, "rhn_web_ui.log"), args._from, args._until
     )
     template_data["groups"][4]["events"] = []
     template_data["groups"][5]["events"] = []
@@ -101,30 +112,43 @@ except OSError as exc:
     log.error(exc)
     exit(1)
 
-# Assign ID to all collected events
-event_counter = 0
-for group in template_data["groups"]:
-    for ev in group["events"]:
-        ev["id"] = event_counter
-        event_counter += 1
-
 # Render template and write output file
 rendered_output = template.render(**template_data)
 with open(args.output, "w") as f:
     f.write(rendered_output)
 
-print("------------------------------------------------")
-print("------------- Uyuni Log Visualizer -------------")
-print("------------------------------------------------")
+print(" -----------------------")
+print("| Uyuni Logs Visualizer |")
+print(" ----------------------- ")
 print()
+print("  Options:")
 if args._from:
-    print("  * From datetime: {}".format(args._from))
+    print("    * From datetime: {}".format(args._from))
 if args._until:
-    print("  * Until datetime: {}".format(args._until))
+    print("    * Until datetime: {}".format(args._until))
+if args.logs_path:
+    print("    * Path to logs: {}".format(args.logs_path))
 if args.supportconfig_path:
-    print("  * Supportconfig path: {}".format(args.supportconfig_path))
-print("  * {} events were collected.".format(event_counter))
+    print("    * Path to supportconfig: {}".format(args.supportconfig_path))
 print()
-print("  * Results HTML file: {}".format(args.output))
+print("  Summary:")
+print(
+    "    * {} events were collected.".format(collectors._collect_stats["event_count"])
+)
+print(
+    "    * First event at: {}".format(
+        collectors._collect_stats["first_event"].isoformat()
+    )
+)
+print(
+    "    * Last event at: {}".format(
+        collectors._collect_stats["last_event"].isoformat()
+    )
+)
 print()
-print("------------------------------------------------")
+print("  Results:")
+print("    * Results HTML file: {}".format(args.output))
+print()
+print(" -----------")
+print("| Finished! |")
+print(" -----------")
