@@ -84,16 +84,16 @@ template_data = {
 
 try:
     template_data["groups"][0]["events"] = collectors.from_salt_events(
-        "salt-events.txt", args._from, args._until
+        "_logs/salt-events.txt", args._from, args._until
     )
     template_data["groups"][1]["events"] = collectors.from_salt_master(
-        "master", args._from, args._until
+        "_logs/master", args._from, args._until
     )
     template_data["groups"][2]["events"] = collectors.from_salt_api(
-        "api", args._from, args._until
+        "_logs/api", args._from, args._until
     )
     template_data["groups"][3]["events"] = collectors.from_java_web_ui(
-        "rhn_web_ui.log", args._from, args._until
+        "_logs/rhn_web_ui.log", args._from, args._until
     )
     template_data["groups"][4]["events"] = []
     template_data["groups"][5]["events"] = []
