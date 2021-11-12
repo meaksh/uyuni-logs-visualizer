@@ -35,7 +35,7 @@ parser.add_argument(
 parser.add_argument(
     "-f",
     "--from",
-    metavar="datetime",
+    metavar="FROM_DATETIME",
     action="store",
     dest="_from",
     type=str,
@@ -45,7 +45,7 @@ parser.add_argument(
 parser.add_argument(
     "-u",
     "--until",
-    metavar="datetime",
+    metavar="FROM_DATETIME",
     action="store",
     dest="_until",
     type=str,
