@@ -100,19 +100,32 @@ template_data = {
     ],
 }
 
+COLLECTORS_FILES_MAPPING = {
+    "salt_events": {
+        "files": ["salt-events.txt", "salt-event.log", "/var/log/rhn/salt-event.log"],
+        "group": 0,
+    },
+    "salt_master": {"files": ["master", "/var/log/salt/master"], "group": 1},
+    "salt_api": {"files": ["api", "/var/log/salt/api"], "group": 2},
+    "java_web_ui": {
+        "files": ["rhn_web_ui.log", "/var/log/rhn/rhn_web_ui.log"],
+        "group": 3,
+    },
+}
+
 try:
-    template_data["groups"][0]["events"] = collectors.from_salt_events(
-        os.path.join(args.logs_path, "salt-events.txt"), args._from, args._until
-    )
-    template_data["groups"][1]["events"] = collectors.from_salt_master(
-        os.path.join(args.logs_path, "master"), args._from, args._until
-    )
-    template_data["groups"][2]["events"] = collectors.from_salt_api(
-        os.path.join(args.logs_path, "api"), args._from, args._until
-    )
-    template_data["groups"][3]["events"] = collectors.from_java_web_ui(
-        os.path.join(args.logs_path, "rhn_web_ui.log"), args._from, args._until
-    )
+    for collector in COLLECTORS_FILES_MAPPING:
+        event_file = next(
+            f
+            for f in COLLECTORS_FILES_MAPPING[collector]["files"]
+            if os.path.isfile(os.path.join(args.logs_path, f))
+        )
+        event_file_path = os.path.join(args.logs_path, event_file)
+        template_data["groups"][COLLECTORS_FILES_MAPPING[collector]["group"]][
+            "events"
+        ] = getattr(collectors, "from_{}".format(collector))(
+            event_file_path, args._from, args._until
+        )
     template_data["groups"][4]["events"] = []
     template_data["groups"][5]["events"] = []
     template_data["groups"][6]["events"] = []
