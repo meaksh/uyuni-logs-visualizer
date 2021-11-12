@@ -2,7 +2,7 @@
 #
 # Uyuni Logs Visualizer
 #
-# A tool to graphically visualize events from Uyuni logs and Salt events bug
+# A tool to graphically visualize events from Uyuni logs and Salt events bus
 #
 # Author: Pablo Suárez Hernández <psuarezhernandez@suse.com>
 #
