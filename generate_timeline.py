@@ -68,7 +68,7 @@ template = template_env.get_template("_index.jinja")
 
 event_counter = 0
 
-data_dict = {
+template_data = {
     "title": "Uyuni Logs Visualizer",
     "body": "Hacked during DCM workshop 2021 at SUSE",
     "groups": [
@@ -83,35 +83,50 @@ data_dict = {
 }
 
 try:
-    data_dict["groups"][0]["events"] = collectors.from_salt_events(
+    template_data["groups"][0]["events"] = collectors.from_salt_events(
         "salt-events.txt", args._from, args._until
     )
-    data_dict["groups"][1]["events"] = collectors.from_salt_master(
+    template_data["groups"][1]["events"] = collectors.from_salt_master(
         "master", args._from, args._until
     )
-    data_dict["groups"][2]["events"] = collectors.from_salt_api(
+    template_data["groups"][2]["events"] = collectors.from_salt_api(
         "api", args._from, args._until
     )
-    data_dict["groups"][3]["events"] = collectors.from_java_web_ui(
+    template_data["groups"][3]["events"] = collectors.from_java_web_ui(
         "rhn_web_ui.log", args._from, args._until
     )
-    data_dict["groups"][4]["events"] = []
-    data_dict["groups"][5]["events"] = []
-    data_dict["groups"][6]["events"] = []
+    template_data["groups"][4]["events"] = []
+    template_data["groups"][5]["events"] = []
+    template_data["groups"][6]["events"] = []
 except OSError as exc:
     log.error("Oops! There was an error when collecting events:")
     log.error(exc)
+    exit(1)
 
 # Assign ID to all collected events
 event_counter = 0
-for group in data_dict["groups"]:
+for group in template_data["groups"]:
     for ev in group["events"]:
         ev["id"] = event_counter
         event_counter += 1
 
-log.info("Finished. {} events were collected.".format(event_counter))
-
-output = template.render(**data_dict)
-
+# Render template and write output file
+rendered_output = template.render(**template_data)
 with open(args.output, "w") as f:
-    f.write(output)
+    f.write(rendered_output)
+
+print("------------------------------------------------")
+print("------------- Uyuni Log Visualizer -------------")
+print("------------------------------------------------")
+print()
+if args._from:
+    print("  * From datetime: {}".format(args._from))
+if args._until:
+    print("  * Until datetime: {}".format(args._until))
+if args.supportconfig_path:
+    print("  * Supportconfig path: {}".format(args.supportconfig_path))
+print("  * {} events were collected.".format(event_counter))
+print()
+print("  * Results HTML file: {}".format(args.output))
+print()
+print("------------------------------------------------")
