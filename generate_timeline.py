@@ -1,6 +1,7 @@
 import argparse
 import datetime
 import json
+import logging
 import os
 import pprint
 import re
@@ -8,6 +9,8 @@ import re
 import jinja2
 
 from utils import collectors
+
+log = logging.getLogger(__name__)
 
 parser = argparse.ArgumentParser(description="Generate a HTML view of Uyuni logs.")
 parser.add_argument(
@@ -46,7 +49,7 @@ if args._from:
     try:
         datetime.datetime.fromisoformat(args._from)
     except ValueError:
-        print("ERROR: '{}' is not a valid datetime".format(args._from))
+        log.error("ERROR: '{}' is not a valid datetime".format(args._from))
         exit(1)
 
 templates_dir = os.path.join(os.path.dirname(__file__), "./templates")
@@ -89,8 +92,8 @@ try:
     data_dict["groups"][5]["events"] = []
     data_dict["groups"][6]["events"] = []
 except OSError as exc:
-    print("Oops, there was an error when collecting events!")
-    print(exc)
+    log.error("Oops! There was an error when collecting events:")
+    log.error(exc)
 
 # Assign ID to all collected events
 event_counter = 0
@@ -99,7 +102,7 @@ for group in data_dict["groups"]:
         ev["id"] = event_counter
         event_counter += 1
 
-print("Collected {} events".format(event_counter))
+log.info("Finished. {} events were collected.".format(event_counter))
 
 output = template.render(**data_dict)
 

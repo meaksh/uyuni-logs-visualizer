@@ -1,9 +1,12 @@
 import datetime
 import json
+import logging
 import pprint
 import re
 
 EXCLUDED_SALT_EVENTS = "minion_event"
+
+log = logging.getLogger(__name__)
 
 
 def from_salt_events(path, from_date, until_date):
@@ -21,8 +24,8 @@ def from_salt_events(path, from_date, until_date):
                 try:
                     content = json.loads(content)
                 except Exception as exc:
-                    print("Error parsing JSON -> {}".format(content))
-                    print(exc)
+                    log.error("Error parsing JSON -> {}".format(content))
+                    log.error(exc)
                     continue
 
                 # Exclude events older than given datetime
