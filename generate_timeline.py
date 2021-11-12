@@ -132,19 +132,9 @@ if args.supportconfig_path:
     print("    * Path to supportconfig: {}".format(args.supportconfig_path))
 print()
 print("  Summary:")
-print(
-    "    * {} events were collected.".format(collectors._collect_stats["event_count"])
-)
-print(
-    "    * First event at: {}".format(
-        collectors._collect_stats["first_event"].isoformat()
-    )
-)
-print(
-    "    * Last event at: {}".format(
-        collectors._collect_stats["last_event"].isoformat()
-    )
-)
+print("    * {} events were collected.".format(collectors._stats["event_count"]))
+print("    * First event at: {}".format(collectors._stats["first_event"].isoformat()))
+print("    * Last event at: {}".format(collectors._stats["last_event"].isoformat()))
 print()
 print("  Results:")
 print("    * Results HTML file: {}".format(args.output))

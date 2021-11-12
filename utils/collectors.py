@@ -4,11 +4,11 @@ import logging
 import pprint
 import re
 
-EXCLUDED_SALT_EVENTS = "minion_event"
+EXCLUDED_SALT_EVENTS = ["minion_event"]
 
 log = logging.getLogger(__name__)
 
-_collect_stats = {
+_stats = {
     "event_count": 0,
     "first_event": None,
     "last_event": None,
@@ -16,15 +16,12 @@ _collect_stats = {
 
 
 def _process_event(event, datetime_obj):
-    event["id"] = _collect_stats["event_count"]
-    _collect_stats["event_count"] += 1
-    if (
-        not _collect_stats["first_event"]
-        or datetime_obj < _collect_stats["first_event"]
-    ):
-        _collect_stats["first_event"] = datetime_obj
-    if not _collect_stats["last_event"] or datetime_obj > _collect_stats["last_event"]:
-        _collect_stats["last_event"] = datetime_obj
+    event["id"] = _stats["event_count"]
+    _stats["event_count"] += 1
+    if not _stats["first_event"] or datetime_obj < _stats["first_event"]:
+        _stats["first_event"] = datetime_obj
+    if not _stats["last_event"] or datetime_obj > _stats["last_event"]:
+        _stats["last_event"] = datetime_obj
     return event
 
 
