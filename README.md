@@ -21,3 +21,6 @@ optional arguments:
   -s SUPPORTCONFIG_PATH, --supportconfig-path SUPPORTCONFIG_PATH
                         Path to the unpacked supportconfig
 ```
+
+### Authors:
+- Pablo Suárez Hernández - <psuarezhernandez@suse.de>
