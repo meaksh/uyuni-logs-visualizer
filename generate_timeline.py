@@ -151,7 +151,7 @@ print()
 # FIXME:
 logs_path = args.logs_path if args.logs_path else args.supportconfig_path
 
-# Start the action execution
+# Start the actual execution
 try:
     for collector in COLLECTORS_AND_FILES_MAPPING:
         try:
