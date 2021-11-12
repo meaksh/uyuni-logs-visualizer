@@ -22,5 +22,9 @@ optional arguments:
                         Path to the unpacked supportconfig
 ```
 
+### Example of generated HTML:
+![image](https://user-images.githubusercontent.com/7229203/141479052-9fd712eb-45aa-4816-a0a1-7b599ec4a81f.png)
+
+
 ### Authors:
 - Pablo Suárez Hernández - <psuarezhernandez@suse.de>
