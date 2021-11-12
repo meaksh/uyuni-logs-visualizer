@@ -1,3 +1,12 @@
+#!/usr/bin/python3
+#
+# Uyuni Logs Visualizer
+#
+# A tool to graphically visualize events from Uyuni logs and Salt events bug
+#
+# Author: Pablo Suárez Hernández <psuarezhernandez@suse.com>
+#
+
 import argparse
 import datetime
 import json
