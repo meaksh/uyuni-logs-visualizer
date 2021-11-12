@@ -100,44 +100,38 @@ template_data = {
     ],
 }
 
-COLLECTORS_FILES_MAPPING = {
+COLLECTORS_AND_FILES_MAPPING = {
     "salt_events": {
-        "files": ["salt-events.txt", "salt-event.log", "/var/log/rhn/salt-event.log"],
+        "files": [
+            "salt-events.txt",
+            "salt-event.log",
+            "var/log/rhn/salt-event.log",
+            "spacewalk-debug/salt-logs/salt/salt-event.log",
+        ],
         "group": 0,
     },
-    "salt_master": {"files": ["master", "/var/log/salt/master"], "group": 1},
-    "salt_api": {"files": ["api", "/var/log/salt/api"], "group": 2},
+    "salt_master": {
+        "files": [
+            "master",
+            "var/log/salt/master",
+            "spacewalk-debug/salt-logs/salt/master",
+        ],
+        "group": 1,
+    },
+    "salt_api": {
+        "files": ["api", "var/log/salt/api", "spacewalk-debug/salt-logs/salt/api"],
+        "group": 2,
+    },
     "java_web_ui": {
-        "files": ["rhn_web_ui.log", "/var/log/rhn/rhn_web_ui.log"],
+        "files": [
+            "rhn_web_ui.log",
+            "var/log/rhn/rhn_web_ui.log",
+            "spacewalk-debug/rhn-logs/rhn/rhn_web_ui.log",
+        ],
         "group": 3,
     },
 }
 
-try:
-    for collector in COLLECTORS_FILES_MAPPING:
-        event_file = next(
-            f
-            for f in COLLECTORS_FILES_MAPPING[collector]["files"]
-            if os.path.isfile(os.path.join(args.logs_path, f))
-        )
-        event_file_path = os.path.join(args.logs_path, event_file)
-        template_data["groups"][COLLECTORS_FILES_MAPPING[collector]["group"]][
-            "events"
-        ] = getattr(collectors, "from_{}".format(collector))(
-            event_file_path, args._from, args._until
-        )
-    template_data["groups"][4]["events"] = []
-    template_data["groups"][5]["events"] = []
-    template_data["groups"][6]["events"] = []
-except OSError as exc:
-    log.error("Oops! There was an error when collecting events:")
-    log.error(exc)
-    exit(1)
-
-# Render template and write output file
-rendered_output = template.render(**template_data)
-with open(args.output, "w") as f:
-    f.write(rendered_output)
 
 print(" -----------------------")
 print("| Uyuni Logs Visualizer |")
@@ -153,10 +147,46 @@ if args.logs_path:
 if args.supportconfig_path:
     print("    * Path to supportconfig: {}".format(args.supportconfig_path))
 print()
+
+# Start the action execution
+try:
+    for collector in COLLECTORS_AND_FILES_MAPPING:
+        try:
+            event_file = next(
+                f
+                for f in COLLECTORS_AND_FILES_MAPPING[collector]["files"]
+                if os.path.isfile(os.path.join(args.logs_path, f))
+            )
+            event_file_path = os.path.join(args.logs_path, event_file)
+            template_data["groups"][COLLECTORS_AND_FILES_MAPPING[collector]["group"]][
+                "events"
+            ] = getattr(collectors, "from_{}".format(collector))(
+                event_file_path, args._from, args._until
+            )
+        except StopIteration:
+            log.error("  - Cannot find logs for '{}'\n".format(collector))
+    template_data["groups"][4]["events"] = []
+    template_data["groups"][5]["events"] = []
+    template_data["groups"][6]["events"] = []
+except OSError as exc:
+    log.error("Oops! There was an error when collecting events:")
+    log.error(exc)
+    exit(1)
+
+# Render template and write output file
+rendered_output = template.render(**template_data)
+with open(args.output, "w") as f:
+    f.write(rendered_output)
+
 print("  Summary:")
 print("    * {} events were collected.".format(collectors._stats["event_count"]))
-print("    * First event at: {}".format(collectors._stats["first_event"].isoformat()))
-print("    * Last event at: {}".format(collectors._stats["last_event"].isoformat()))
+
+if collectors._stats["first_event"] and collectors._stats["last_event"]:
+    print(
+        "    * First event at: {}".format(collectors._stats["first_event"].isoformat())
+    )
+    print("    * Last event at: {}".format(collectors._stats["last_event"].isoformat()))
+
 print()
 print("  Results:")
 print("    * Results HTML file: {}".format(args.output))
