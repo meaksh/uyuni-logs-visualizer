@@ -64,9 +64,7 @@ templates_dir = os.path.join(os.path.dirname(__file__), "./templates")
 template_loader = jinja2.FileSystemLoader(searchpath=templates_dir)
 template_env = jinja2.Environment(loader=template_loader)
 
-template = template_env.get_template("_index.jinja")
-
-event_counter = 0
+template = template_env.get_template("_output.jinja")
 
 template_data = {
     "title": "Uyuni Logs Visualizer",

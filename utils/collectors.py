@@ -8,6 +8,25 @@ EXCLUDED_SALT_EVENTS = "minion_event"
 
 log = logging.getLogger(__name__)
 
+_collect_stats = {
+    "event_count": 0,
+    "first_event": None,
+    "last_event": None,
+}
+
+
+def _process_event(event, datetime_obj):
+    event["id"] = _collect_stats["event_count"]
+    _collect_stats["event_count"] += 1
+    if (
+        not _collect_stats["first_event"]
+        or datetime_obj < _collect_stats["first_event"]
+    ):
+        _collect_stats["first_event"] = datetime_obj
+    if not _collect_stats["last_event"] or datetime_obj > _collect_stats["last_event"]:
+        _collect_stats["last_event"] = datetime_obj
+    return event
+
 
 def from_salt_events(path, from_date, until_date):
     with open(path) as f:
@@ -28,16 +47,18 @@ def from_salt_events(path, from_date, until_date):
                     log.error(exc)
                     continue
 
+                datetime_obj = datetime.datetime.fromisoformat(content["_stamp"])
+
                 # Exclude events older than given datetime
-                if from_date and datetime.datetime.fromisoformat(
-                    content["_stamp"]
-                ) < datetime.datetime.fromisoformat(from_date):
+                if from_date and datetime_obj < datetime.datetime.fromisoformat(
+                    from_date
+                ):
                     continue
 
                 # Exclude events newer than given datetime
-                if until_date and datetime.datetime.fromisoformat(
-                    content["_stamp"]
-                ) > datetime.datetime.fromisoformat(until_date):
+                if until_date and datetime_obj > datetime.datetime.fromisoformat(
+                    until_date
+                ):
                     continue
 
                 new_item = {
@@ -62,8 +83,11 @@ def from_salt_events(path, from_date, until_date):
                 elif tag.startswith("minion/refresh"):
                     new_item["type"] = "minion_refresh"
 
-                if new_item.get("type", "") not in EXCLUDED_SALT_EVENTS:
-                    ret.append(new_item)
+                if new_item.get("type", "") in EXCLUDED_SALT_EVENTS:
+                    continue
+
+                ret.append(_process_event(new_item, datetime_obj))
+
         return ret
 
 
@@ -119,7 +143,7 @@ def from_java_web_ui(path, from_date, until_date):
                     "timestamp": datetime_obj,
                 }
 
-                ret.append(new_item)
+                ret.append(_process_event(new_item, datetime_obj))
         return ret
 
 
@@ -166,7 +190,7 @@ def from_salt_api(path, from_date, until_date):
                     "timestamp": timestamp,
                 }
 
-                ret.append(new_item)
+                ret.append(_process_event(new_item, datetime_obj))
         return ret
 
 
@@ -213,5 +237,5 @@ def from_salt_master(path, from_date, until_date):
                     "timestamp": timestamp,
                 }
 
-                ret.append(new_item)
+                ret.append(_process_event(new_item, datetime_obj))
         return ret
