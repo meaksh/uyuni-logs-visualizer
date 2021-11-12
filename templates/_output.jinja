@@ -74,13 +74,13 @@
 <p>
 <span>
 <div>
-	<label><input type="checkbox" id="stackEvents"> Stack events</input></label>
+    <label><input type="checkbox" id="stackEvents"> Stack events</input></label>
 </div>
 <div>
-	<label><input type="checkbox" id="clusterCheckbox"> Enable clustering</input></label>
+    <label><input type="checkbox" id="clusterCheckbox"> Enable clustering</input></label>
 </div>
 <div>
-	<label><input type="checkbox" id="focus" checked> Focus on selection</input></label>
+    <label><input type="checkbox" id="focus" checked> Focus on selection</input></label>
 </div>
 <hr>
 <div>
@@ -102,12 +102,12 @@ Hide the following Salt events:
 </td>
 <td width="80%">
 <div style="margin-bottom: 5px;">
-	<label><b>Selected Event: </b><span id="current_event_name"></span></label>
-	</br>
-	<label><b>Timestamp: </b><span id="current_event_timestamp"></span></label>
+    <label><b>Selected Event: </b><span id="current_event_name"></span></label>
+    </br>
+    <label><b>Timestamp: </b><span id="current_event_timestamp"></span></label>
 </div>
 <span>
-	<div id="current_event"></div>
+    <div id="current_event"></div>
 </span>
 </td>
 </tr>
@@ -146,9 +146,9 @@ var defaultOptions = {
     height: timelineHeight,
     tooltip: {
         template: function(originalItemData, parsedItemData) {
-	    $("#current_event_name").text(`${originalItemData.content}`);
-	    $("#current_event_timestamp").text(`${originalItemData.start}`);
-	    $("#current_event").html(`<div style="style: bold; padding: 5px">${originalItemData.content}</div><span style="color:green; padding: 5px">${originalItemData.raw}</span>`);
+            $("#current_event_name").text(`${originalItemData.content}`);
+            $("#current_event_timestamp").text(`${originalItemData.start}`);
+            $("#current_event").html(`<div style="style: bold; padding: 5px">${originalItemData.content}</div><span style="color:green; padding: 5px">${originalItemData.raw}</span>`);
             return `<span style="color:green">${originalItemData.raw}</span>`;
         }
     }
