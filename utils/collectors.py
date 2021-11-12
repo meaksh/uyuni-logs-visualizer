@@ -154,8 +154,6 @@ def from_salt_api(path, from_date, until_date):
                     r"^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3}) (\[.*\])(\[.*\])(\[.*\].*)",
                     line,
                 ).groups()
-                if "ERROR" in level:
-                    continue
 
                 j = i
                 while j < len(in_data) - 1 and not re.match(
@@ -201,8 +199,6 @@ def from_salt_master(path, from_date, until_date):
                     r"^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3}) (\[.*\])(\[.*\])(\[.*\].*)",
                     line,
                 ).groups()
-                if "ERROR" in level:
-                    continue
 
                 j = i
                 while j < len(in_data) - 1 and not re.match(
