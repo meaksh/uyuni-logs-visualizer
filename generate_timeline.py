@@ -148,6 +148,9 @@ if args.supportconfig_path:
     print("    * Path to supportconfig: {}".format(args.supportconfig_path))
 print()
 
+# FIXME:
+logs_path = args.logs_path if args.logs_path else args.supportconfig_path
+
 # Start the action execution
 try:
     for collector in COLLECTORS_AND_FILES_MAPPING:
@@ -155,9 +158,9 @@ try:
             event_file = next(
                 f
                 for f in COLLECTORS_AND_FILES_MAPPING[collector]["files"]
-                if os.path.isfile(os.path.join(args.logs_path, f))
+                if os.path.isfile(os.path.join(logs_path, f))
             )
-            event_file_path = os.path.join(args.logs_path, event_file)
+            event_file_path = os.path.join(logs_path, event_file)
             template_data["groups"][COLLECTORS_AND_FILES_MAPPING[collector]["group"]][
                 "events"
             ] = getattr(collectors, "from_{}".format(collector))(
