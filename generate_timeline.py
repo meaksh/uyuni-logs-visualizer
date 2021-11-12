@@ -74,16 +74,16 @@ data_dict = {
 
 try:
     data_dict["groups"][0]["events"] = collectors.from_salt_events(
-        "salt-events.txt", args._from, args._until, event_counter
+        "salt-events.txt", args._from, args._until
     )
     data_dict["groups"][1]["events"] = collectors.from_salt_master(
-        "master", args._from, args._until, event_counter
+        "master", args._from, args._until
     )
     data_dict["groups"][2]["events"] = collectors.from_salt_api(
-        "api", args._from, args._until, event_counter
+        "api", args._from, args._until
     )
     data_dict["groups"][3]["events"] = collectors.from_java_web_ui(
-        "rhn_web_ui.log", args._from, args._until, event_counter
+        "rhn_web_ui.log", args._from, args._until
     )
     data_dict["groups"][4]["events"] = []
     data_dict["groups"][5]["events"] = []
@@ -91,6 +91,15 @@ try:
 except OSError as exc:
     print("Oops, there was an error when collecting events!")
     print(exc)
+
+# Assign ID to all collected events
+event_counter = 0
+for group in data_dict["groups"]:
+    for ev in group["events"]:
+        ev["id"] = event_counter
+        event_counter += 1
+
+print("Collected {} events".format(event_counter))
 
 output = template.render(**data_dict)
 

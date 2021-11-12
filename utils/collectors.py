@@ -6,7 +6,7 @@ import re
 EXCLUDED_SALT_EVENTS = "minion_event"
 
 
-def from_salt_events(path, from_date, until_date, event_counter):
+def from_salt_events(path, from_date, until_date):
     with open(path) as f:
         ret = []
         in_data = f.readlines()
@@ -38,7 +38,6 @@ def from_salt_events(path, from_date, until_date, event_counter):
                     continue
 
                 new_item = {
-                    "id": event_counter,
                     "content": tag,
                     "color": "green",
                     "raw": pprint.pformat(content),
@@ -62,11 +61,10 @@ def from_salt_events(path, from_date, until_date, event_counter):
 
                 if new_item.get("type", "") not in EXCLUDED_SALT_EVENTS:
                     ret.append(new_item)
-                    event_counter += 1
         return ret
 
 
-def from_java_web_ui(path, from_date, until_date, event_counter):
+def from_java_web_ui(path, from_date, until_date):
     with open(path) as f:
         in_data = f.readlines()
         ret = []
@@ -112,19 +110,17 @@ def from_java_web_ui(path, from_date, until_date, event_counter):
                     continue
 
                 new_item = {
-                    "id": event_counter,
                     "content": level,
                     "raw": "{} - {}".format(level, content),
                     "color": "orange",
-                    "timestamp": timestamp,
+                    "timestamp": datetime_obj,
                 }
 
                 ret.append(new_item)
-                event_counter += 1
         return ret
 
 
-def from_salt_api(path, from_date, until_date, event_counter):
+def from_salt_api(path, from_date, until_date):
     with open(path) as f:
         in_data = f.readlines()
         ret = []
@@ -161,7 +157,6 @@ def from_salt_api(path, from_date, until_date, event_counter):
                     continue
 
                 new_item = {
-                    "id": event_counter,
                     "content": level,
                     "raw": "{} - {}".format(component, content),
                     "color": "red",
@@ -169,11 +164,10 @@ def from_salt_api(path, from_date, until_date, event_counter):
                 }
 
                 ret.append(new_item)
-                event_counter += 1
         return ret
 
 
-def from_salt_master(path, from_date, until_date, event_counter):
+def from_salt_master(path, from_date, until_date):
     with open(path) as f:
         in_data = f.readlines()
         ret = []
@@ -210,7 +204,6 @@ def from_salt_master(path, from_date, until_date, event_counter):
                     continue
 
                 new_item = {
-                    "id": event_counter,
                     "content": level,
                     "raw": "{} - {}".format(component, content),
                     "color": "blue",
@@ -218,5 +211,4 @@ def from_salt_master(path, from_date, until_date, event_counter):
                 }
 
                 ret.append(new_item)
-                event_counter += 1
         return ret
