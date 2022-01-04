@@ -14,6 +14,9 @@ import logging
 import os
 import pprint
 import re
+import shutil
+import tarfile
+import tempfile
 
 import jinja2
 
@@ -145,11 +148,42 @@ if args._until:
 if args.logs_path:
     print("    * Path to logs: {}".format(args.logs_path))
 if args.supportconfig_path:
-    print("    * Path to supportconfig: {}".format(args.supportconfig_path))
-print()
+    print("    * Path to supportconfig tarball: {}".format(args.supportconfig_path))
 
-# FIXME:
-logs_path = args.logs_path if args.logs_path else args.supportconfig_path
+print()
+print("  Collecting logs:")
+temp_dirpath = None
+if args.supportconfig_path and not os.path.isfile(args.supportconfig_path):
+    log.error(
+        "ERROR: Supportconfig tarball does not exist: {}".format(
+            args.supportconfig_path
+        )
+    )
+    exit(1)
+elif args.supportconfig_path:
+    temp_dirpath = tempfile.mkdtemp()
+    if args.supportconfig_path.endswith("tar.gz"):
+        mode = "r:gz"
+    elif args.supportconfig_path.endswith("txz"):
+        mode = "r:xz"
+    elif args.supportconfig_path.endswith("tar.bz2"):
+        mode = "r:bz2"
+    else:
+        log.error(
+            "ERROR: Supportconfig tarball format is unknown: {}".format(
+                args.supportconfig_path
+            )
+        )
+        exit(1)
+    tar = tarfile.open(args.supportconfig_path, mode)
+    tar.extractall(temp_dirpath)
+    tar.close()
+
+logs_path = (
+    args.logs_path
+    if args.logs_path
+    else os.path.join(temp_dirpath, os.listdir(temp_dirpath)[0])
+)
 
 # Start the actual execution
 try:
