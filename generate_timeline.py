@@ -125,11 +125,17 @@ COLLECTORS_AND_FILES_MAPPING = {
             "master",
             "var/log/salt/master",
             "spacewalk-debug/salt-logs/salt/master",
+            "plugin-saltlogfiles.txt",
         ],
         "group": 1,
     },
     "salt_api": {
-        "files": ["api", "var/log/salt/api", "spacewalk-debug/salt-logs/salt/api"],
+        "files": [
+            "api",
+            "var/log/salt/api",
+            "spacewalk-debug/salt-logs/salt/api",
+            "plugin-saltlogfiles.txt",
+        ],
         "group": 2,
     },
     "java_web_ui": {
