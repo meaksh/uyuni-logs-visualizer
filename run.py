@@ -187,19 +187,30 @@ class UyuniLogsVisualizer:
                         event_file_path, self.args._from, self.args._until
                     )
                     print(
-                        "    * Found {} logs at: {}".format(
-                            list(
-                                filter(
-                                    lambda x: x["id"]
-                                    == COLLECTORS_AND_FILES_MAPPING[collector]["group"],
-                                    TEMPLATE_DATA["groups"],
-                                )
-                            )[0]["name"],
+                        "    * Found {} logs file at: {}".format(
+                            [
+                                x["name"]
+                                for x in TEMPLATE_DATA["groups"]
+                                if x["id"]
+                                == COLLECTORS_AND_FILES_MAPPING[collector]["group"]
+                            ][0],
                             event_file_path,
                         )
                     )
                 except StopIteration:
-                    log.error("    * Cannot find logs for '{}'".format(collector))
+                    log.warning(
+                        "    * WARN: Couldn't find any logs files for {}:".format(
+                            [
+                                x["name"]
+                                for x in TEMPLATE_DATA["groups"]
+                                if x["id"]
+                                == COLLECTORS_AND_FILES_MAPPING[collector]["group"]
+                            ][0]
+                        )
+                    )
+                    for file in COLLECTORS_AND_FILES_MAPPING[collector]["files"]:
+                        print("      - {} not found".format(file))
+                    print()
             TEMPLATE_DATA["groups"][4]["events"] = []
             TEMPLATE_DATA["groups"][5]["events"] = []
             TEMPLATE_DATA["groups"][6]["events"] = []
