@@ -21,7 +21,12 @@ import tempfile
 import jinja2
 
 from utils import collectors
-from utils.constants import COLLECTORS_AND_FILES_MAPPING, TEMPLATE_DATA
+from utils.constants import (
+    CLI_FANCY_DONE,
+    CLI_FANCY_TITLE,
+    COLLECTORS_AND_FILES_MAPPING,
+    TEMPLATE_DATA,
+)
 
 log = logging.getLogger(__name__)
 
@@ -112,9 +117,7 @@ class UyuniLogsVisualizer:
         return args
 
     def __config_summary(self):
-        print(" -----------------------")
-        print("| Uyuni Logs Visualizer |")
-        print(" ----------------------- ")
+        print(CLI_FANCY_TITLE)
         print()
         print("  Options:")
         if self.args._from:
@@ -262,10 +265,7 @@ class UyuniLogsVisualizer:
         print()
         print("  Results:")
         print("    * Results HTML file: {}".format(self.args.output))
-        print()
-        print(" ---------------------")
-        print("| Execution finished! |")
-        print(" ---------------------")
+        print(CLI_FANCY_DONE)
 
 
 UyuniLogsVisualizer(args).start()
