@@ -1,7 +1,7 @@
 # uyuni-logs-visualizer [![pre-commit](https://github.com/meaksh/uyuni-logs-visualizer/actions/workflows/pre-commit.yml/badge.svg)](https://github.com/meaksh/uyuni-logs-visualizer/actions/workflows/pre-commit.yml)
 A tool to graphically visualize events from Uyuni logs and Salt events bus. The tool generates a HTML output where you can navigate the collected events using your web browser.
 
-When running this tool, you provide a path where the different logs files are stored, i.a. "rhn_web_ui.log", "master" or "salt-events.txt", or you can pass the path to your "supportconfig" tarball, then the tool will temporary unpack the supportconfig and collect the logs file from it.
+When running this tool, you provide a path where the different logs files are stored, i.a. "rhn_web_ui.log", "master", "salt-events.txt", ..., or you can alternatively pass the path to a "supportconfig" tarball, then the tool will temporary unpack the supportconfig and collect the logs file from it.
 
 The generated HTML is using:
 - https://github.com/visjs/vis-timeline
@@ -96,7 +96,7 @@ Generated HTML:
 ![image](https://user-images.githubusercontent.com/7229203/141479052-9fd712eb-45aa-4816-a0a1-7b599ec4a81f.png)
 
 ### RPM packages:
-This project is building at Open Build Service: https://build.opensuse.org/package/show/home:PSuarezHernandez/uyuni-logs-visualizer
+We are building RPM packages for this project at Open Build Service: https://build.opensuse.org/package/show/home:PSuarezHernandez/uyuni-logs-visualizer
 
 ### Authors:
 - Pablo Suárez Hernández - <psuarezhernandez@suse.de>
