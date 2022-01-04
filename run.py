@@ -67,7 +67,7 @@ parser.add_argument(
     "-s",
     "--supportconfig-path",
     type=str,
-    help="Path to the unpacked supportconfig",
+    help="Path to supportconfig tarball",
 )
 
 parser.add_argument(

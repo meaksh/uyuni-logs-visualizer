@@ -19,7 +19,7 @@ optional arguments:
   -p LOGS_PATH, --logs-path LOGS_PATH
                         Path to logs files
   -s SUPPORTCONFIG_PATH, --supportconfig-path SUPPORTCONFIG_PATH
-                        Path to the unpacked supportconfig
+                        Path to supportconfig tarball
 ```
 
 ### Example of generated HTML:
