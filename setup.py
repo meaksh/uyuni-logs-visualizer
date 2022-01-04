@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="uyuni-logs-visualizer",
-    version="0.1",
+    version="0.1.1",
     author="Pablo Suárez Hernández",
     author_email="psuarezhernandez@suse.com",
     description="A tool to graphically visualize events from Uyuni logs and Salt events bus",
