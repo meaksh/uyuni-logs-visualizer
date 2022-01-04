@@ -151,7 +151,7 @@ def from_salt_api(path, from_date, until_date):
         for i, line in enumerate(in_data):
             if re.match(r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3} .*", line):
                 timestamp, component, level, content = re.match(
-                    r"^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3}) (\[.*\])(\[.*\])(\[.*\].*)",
+                    r"^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3}) (\[.*\])\[(\w+).*\](\[.*\].*)",
                     line,
                 ).groups()
 
@@ -196,7 +196,7 @@ def from_salt_master(path, from_date, until_date):
         for i, line in enumerate(in_data):
             if re.match(r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3} .*", line):
                 timestamp, component, level, content = re.match(
-                    r"^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3}) (\[.*\])(\[.*\])(\[.*\].*)",
+                    r"^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3}) (\[.*\])\[(\w+).*\](\[.*\].*)",
                     line,
                 ).groups()
 
