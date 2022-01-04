@@ -213,8 +213,20 @@ try:
             ] = getattr(collectors, "from_{}".format(collector))(
                 event_file_path, args._from, args._until
             )
+            print(
+                "    * Found {} logs at: {}".format(
+                    list(
+                        filter(
+                            lambda x: x["id"]
+                            == COLLECTORS_AND_FILES_MAPPING[collector]["group"],
+                            template_data["groups"],
+                        )
+                    )[0]["name"],
+                    event_file_path,
+                )
+            )
         except StopIteration:
-            log.error("  - Cannot find logs for '{}'\n".format(collector))
+            log.error("    * Cannot find logs for '{}'".format(collector))
     template_data["groups"][4]["events"] = []
     template_data["groups"][5]["events"] = []
     template_data["groups"][6]["events"] = []
@@ -254,6 +266,6 @@ print()
 print("  Results:")
 print("    * Results HTML file: {}".format(args.output))
 print()
-print(" -----------")
-print("| Finished! |")
-print(" -----------")
+print(" ---------------------")
+print("| Execution finished! |")
+print(" ---------------------")
