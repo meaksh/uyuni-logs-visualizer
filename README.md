@@ -1,4 +1,4 @@
-# uyuni-logs-visualizer
+# uyuni-logs-visualizer [![pre-commit](https://github.com/meaksh/uyuni-logs-visualizer/actions/workflows/pre-commit.yml/badge.svg)](https://github.com/meaksh/uyuni-logs-visualizer/actions/workflows/pre-commit.yml)
 A tool to graphically visualize events from Uyuni logs and Salt events bus. The tool generates a HTML output where you can navigate the collected events using your web browser.
 
 When running this tool, you provide a path where the different logs files are stored, i.a. "rhn_web_ui.log", "master" or "salt-events.txt", or you can pass the path to your "supportconfig" tarball, then the tool will temporary unpack the supportconfig and collect the logs file from it.
