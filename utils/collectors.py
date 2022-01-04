@@ -166,6 +166,9 @@ def from_salt_api(path, from_date, until_date):
                     timestamp, "%Y-%m-%d %H:%M:%S,%f"
                 )
 
+                if level in ["DEBUG", "WARNING"]:
+                    continue
+
                 # Exclude events older than given datetime
                 if from_date and datetime_obj < datetime.datetime.fromisoformat(
                     from_date
@@ -221,6 +224,9 @@ def from_salt_master(path, from_date, until_date):
                 if until_date and datetime_obj > datetime.datetime.fromisoformat(
                     until_date
                 ):
+                    continue
+
+                if level in ["DEBUG", "WARNING"]:
                     continue
 
                 new_item = {
