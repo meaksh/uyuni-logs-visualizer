@@ -18,8 +18,8 @@ When running this tool, you provide a path where the different logs files are st
 ### How to run it:
 
 ```console
-# python3 run.py -h
-usage: run.py [-h] [-o OUTPUT_FILE]
+# python3 uyuni-logs-visualizer -h
+usage: uyuni-logs-visualizer [-h] [-o OUTPUT_FILE]
                             [-f FROM_DATETIME] [-u UNTIL_DATETIME]
                             [-p LOGS_PATH] [-s SUPPORTCONFIG_PATH]
 
@@ -42,7 +42,7 @@ optional arguments:
 ### Example execution:
 
 ```console
-# python3 run.py -s /tmp/example_supportconfig.txz -f 2022-01-03T14:01:05.093000 -u 2022-01-04T10:01:05.093000
+# python3 uyuni-logs-visualizer -s /tmp/example_supportconfig.txz -f 2022-01-03T14:01:05.093000 -u 2022-01-04T10:01:05.093000
 
    __  __                  _    __                        _    ___                  ___
   / / / /_  ____  ______  (_)  / /   ____  ____ ______   | |  / (_)______  ______ _/ (_)___  ___  _____
