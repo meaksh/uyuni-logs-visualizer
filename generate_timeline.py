@@ -69,6 +69,13 @@ parser.add_argument(
     help="Path to the unpacked supportconfig",
 )
 
+parser.add_argument(
+    "-sk",
+    "--skip-cleanup",
+    type=str,
+    help="Skip cleanup of temporary files",
+)
+
 args = parser.parse_args()
 
 if args._from:
@@ -210,10 +217,23 @@ except OSError as exc:
     log.error(exc)
     exit(1)
 
+print()
 # Render template and write output file
 rendered_output = template.render(**template_data)
 with open(args.output, "w") as f:
     f.write(rendered_output)
+
+# Clean up temporary files
+if not args.skip_cleanup and args.supportconfig_path and logs_path:
+    print("  Cleanup:")
+    try:
+        shutil.rmtree(logs_path)
+        print("    * Temporary files removed: {}".format(logs_path))
+    except Exception as exc:
+        log.error("ERROR: Something unexpected happending during cleanup")
+        log.error(exc)
+        exit(1)
+    print()
 
 print("  Summary:")
 print("    * {} events were collected.".format(collectors._stats["event_count"]))
