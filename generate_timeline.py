@@ -21,6 +21,7 @@ import tempfile
 import jinja2
 
 from utils import collectors
+from utils.constants import COLLECTORS_AND_FILES_MAPPING, TEMPLATE_DATA
 
 log = logging.getLogger(__name__)
 
@@ -78,194 +79,182 @@ parser.add_argument(
 
 args = parser.parse_args()
 
-if args._from:
-    try:
-        datetime.datetime.fromisoformat(args._from)
-    except ValueError:
-        log.error("ERROR: '{}' is not a valid datetime".format(args._from))
-        exit(1)
 
-if bool(args.logs_path) == bool(args.supportconfig_path):
-    log.error("ERROR: You must specify either a logs path or supportconfig path")
-    exit(1)
+class UyuniLogsVisualizer:
+    def __init__(self, args):
+        self.args = self.validate_args(args)
 
-templates_dir = os.path.join(os.path.dirname(__file__), "./templates")
+        templates_dir = os.path.join(os.path.dirname(__file__), "./templates")
+        template_loader = jinja2.FileSystemLoader(searchpath=templates_dir)
+        template_env = jinja2.Environment(loader=template_loader)
+        self.template = template_env.get_template("_output.jinja")
 
-template_loader = jinja2.FileSystemLoader(searchpath=templates_dir)
-template_env = jinja2.Environment(loader=template_loader)
+    def start(self):
+        self.__config_summary()
+        self.__setup_logs_path()
+        self.__collect()
+        self.__generate_output()
+        self.__cleanup()
+        self.__output_summary()
 
-template = template_env.get_template("_output.jinja")
-
-template_data = {
-    "title": "Uyuni Logs Visualizer",
-    "body": "Hacked during DCM workshop 2021 at SUSE",
-    "groups": [
-        {"id": 0, "name": "Salt Event Bus"},
-        {"id": 1, "name": "Salt Master"},
-        {"id": 2, "name": "Salt API"},
-        {"id": 3, "name": "Java Web UI"},
-        {"id": 4, "name": "Java Taskomatic"},
-        {"id": 5, "name": "PostgreSQL"},
-        {"id": 6, "name": "Test group"},
-    ],
-}
-
-COLLECTORS_AND_FILES_MAPPING = {
-    "salt_events": {
-        "files": [
-            "salt-events.txt",
-            "salt-event.log",
-            "var/log/rhn/salt-event.log",
-            "spacewalk-debug/salt-logs/salt/salt-event.log",
-        ],
-        "group": 0,
-    },
-    "salt_master": {
-        "files": [
-            "master",
-            "var/log/salt/master",
-            "spacewalk-debug/salt-logs/salt/master",
-            "plugin-saltlogfiles.txt",
-        ],
-        "group": 1,
-    },
-    "salt_api": {
-        "files": [
-            "api",
-            "var/log/salt/api",
-            "spacewalk-debug/salt-logs/salt/api",
-            "plugin-saltlogfiles.txt",
-        ],
-        "group": 2,
-    },
-    "java_web_ui": {
-        "files": [
-            "rhn_web_ui.log",
-            "var/log/rhn/rhn_web_ui.log",
-            "spacewalk-debug/rhn-logs/rhn/rhn_web_ui.log",
-        ],
-        "group": 3,
-    },
-}
-
-
-print(" -----------------------")
-print("| Uyuni Logs Visualizer |")
-print(" ----------------------- ")
-print()
-print("  Options:")
-if args._from:
-    print("    * From datetime: {}".format(args._from))
-if args._until:
-    print("    * Until datetime: {}".format(args._until))
-if args.logs_path:
-    print("    * Path to logs: {}".format(args.logs_path))
-if args.supportconfig_path:
-    print("    * Path to supportconfig tarball: {}".format(args.supportconfig_path))
-
-print()
-print("  Collecting logs:")
-temp_dirpath = None
-if args.supportconfig_path and not os.path.isfile(args.supportconfig_path):
-    log.error(
-        "ERROR: Supportconfig tarball does not exist: {}".format(
-            args.supportconfig_path
-        )
-    )
-    exit(1)
-elif args.supportconfig_path:
-    temp_dirpath = tempfile.mkdtemp()
-    if args.supportconfig_path.endswith("tar.gz"):
-        mode = "r:gz"
-    elif args.supportconfig_path.endswith("txz"):
-        mode = "r:xz"
-    elif args.supportconfig_path.endswith("tar.bz2"):
-        mode = "r:bz2"
-    else:
-        log.error(
-            "ERROR: Supportconfig tarball format is unknown: {}".format(
-                args.supportconfig_path
+    def validate_args(self, args):
+        if args._from:
+            try:
+                datetime.datetime.fromisoformat(args._from)
+            except ValueError:
+                log.error("ERROR: '{}' is not a valid datetime".format(args._from))
+                exit(1)
+        if bool(args.logs_path) == bool(args.supportconfig_path):
+            log.error(
+                "ERROR: You must specify either a logs path or supportconfig path"
             )
-        )
-        exit(1)
-    tar = tarfile.open(args.supportconfig_path, mode)
-    tar.extractall(temp_dirpath)
-    tar.close()
+            exit(1)
+        return args
 
-logs_path = (
-    args.logs_path
-    if args.logs_path
-    else os.path.join(temp_dirpath, os.listdir(temp_dirpath)[0])
-)
-
-# Start the actual execution
-try:
-    for collector in COLLECTORS_AND_FILES_MAPPING:
-        try:
-            event_file = next(
-                f
-                for f in COLLECTORS_AND_FILES_MAPPING[collector]["files"]
-                if os.path.isfile(os.path.join(logs_path, f))
-            )
-            event_file_path = os.path.join(logs_path, event_file)
-            template_data["groups"][COLLECTORS_AND_FILES_MAPPING[collector]["group"]][
-                "events"
-            ] = getattr(collectors, "from_{}".format(collector))(
-                event_file_path, args._from, args._until
-            )
+    def __config_summary(self):
+        print(" -----------------------")
+        print("| Uyuni Logs Visualizer |")
+        print(" ----------------------- ")
+        print()
+        print("  Options:")
+        if self.args._from:
+            print("    * From datetime: {}".format(self.args._from))
+        if self.args._until:
+            print("    * Until datetime: {}".format(self.args._until))
+        if self.args.logs_path:
+            print("    * Path to logs: {}".format(self.args.logs_path))
+        if self.args.supportconfig_path:
             print(
-                "    * Found {} logs at: {}".format(
-                    list(
-                        filter(
-                            lambda x: x["id"]
-                            == COLLECTORS_AND_FILES_MAPPING[collector]["group"],
-                            template_data["groups"],
-                        )
-                    )[0]["name"],
-                    event_file_path,
+                "    * Path to supportconfig tarball: {}".format(
+                    self.args.supportconfig_path
                 )
             )
-        except StopIteration:
-            log.error("    * Cannot find logs for '{}'".format(collector))
-    template_data["groups"][4]["events"] = []
-    template_data["groups"][5]["events"] = []
-    template_data["groups"][6]["events"] = []
-except OSError as exc:
-    log.error("Oops! There was an error when collecting events:")
-    log.error(exc)
-    exit(1)
+        print()
 
-print()
-# Render template and write output file
-rendered_output = template.render(**template_data)
-with open(args.output, "w") as f:
-    f.write(rendered_output)
+    def __setup_logs_path(self):
+        self.temp_dirpath = None
+        if self.args.supportconfig_path and not os.path.isfile(
+            self.args.supportconfig_path
+        ):
+            log.error(
+                "ERROR: Supportconfig tarball does not exist: {}".format(
+                    self.args.supportconfig_path
+                )
+            )
+            exit(1)
+        elif self.args.supportconfig_path:
+            self.temp_dirpath = tempfile.mkdtemp()
+            print("  Extracting supportconfig at: {}".format(self.temp_dirpath))
+            print()
+            if self.args.supportconfig_path.endswith("tar.gz"):
+                mode = "r:gz"
+            elif self.args.supportconfig_path.endswith("txz"):
+                mode = "r:xz"
+            elif self.args.supportconfig_path.endswith("tar.bz2"):
+                mode = "r:bz2"
+            else:
+                log.error(
+                    "ERROR: Supportconfig tarball format is unknown: {}".format(
+                        self.args.supportconfig_path
+                    )
+                )
+                exit(1)
+            tar = tarfile.open(self.args.supportconfig_path, mode)
+            tar.extractall(self.temp_dirpath)
+            tar.close()
 
-# Clean up temporary files
-if not args.skip_cleanup and args.supportconfig_path and logs_path:
-    print("  Cleanup:")
-    try:
-        shutil.rmtree(logs_path)
-        print("    * Temporary files removed: {}".format(logs_path))
-    except Exception as exc:
-        log.error("ERROR: Something unexpected happending during cleanup")
-        log.error(exc)
-        exit(1)
-    print()
+        self.logs_path = (
+            self.args.logs_path
+            if self.args.logs_path
+            else os.path.join(self.temp_dirpath, os.listdir(self.temp_dirpath)[0])
+        )
 
-print("  Summary:")
-print("    * {} events were collected.".format(collectors._stats["event_count"]))
+    def __collect(self):
+        # Start the actual execution
+        print("  Collecting logs:")
+        try:
+            for collector in COLLECTORS_AND_FILES_MAPPING:
+                try:
+                    event_file = next(
+                        f
+                        for f in COLLECTORS_AND_FILES_MAPPING[collector]["files"]
+                        if os.path.isfile(os.path.join(self.logs_path, f))
+                    )
+                    event_file_path = os.path.join(self.logs_path, event_file)
+                    TEMPLATE_DATA["groups"][
+                        COLLECTORS_AND_FILES_MAPPING[collector]["group"]
+                    ]["events"] = getattr(collectors, "from_{}".format(collector))(
+                        event_file_path, self.args._from, self.args._until
+                    )
+                    print(
+                        "    * Found {} logs at: {}".format(
+                            list(
+                                filter(
+                                    lambda x: x["id"]
+                                    == COLLECTORS_AND_FILES_MAPPING[collector]["group"],
+                                    TEMPLATE_DATA["groups"],
+                                )
+                            )[0]["name"],
+                            event_file_path,
+                        )
+                    )
+                except StopIteration:
+                    log.error("    * Cannot find logs for '{}'".format(collector))
+            TEMPLATE_DATA["groups"][4]["events"] = []
+            TEMPLATE_DATA["groups"][5]["events"] = []
+            TEMPLATE_DATA["groups"][6]["events"] = []
+        except OSError as exc:
+            log.error("Oops! There was an error when collecting events:")
+            log.error(exc)
+            exit(1)
+        print()
 
-if collectors._stats["first_event"] and collectors._stats["last_event"]:
-    print(
-        "    * First event at: {}".format(collectors._stats["first_event"].isoformat())
-    )
-    print("    * Last event at: {}".format(collectors._stats["last_event"].isoformat()))
+    def __generate_output(self):
+        # Render template and write output file
+        rendered_output = self.template.render(**TEMPLATE_DATA)
+        with open(self.args.output, "w") as f:
+            f.write(rendered_output)
 
-print()
-print("  Results:")
-print("    * Results HTML file: {}".format(args.output))
-print()
-print(" ---------------------")
-print("| Execution finished! |")
-print(" ---------------------")
+    def __cleanup(self):
+        # Clean up temporary files
+        if (
+            not self.args.skip_cleanup
+            and self.args.supportconfig_path
+            and self.temp_dirpath
+        ):
+            print("  Cleanup:")
+            try:
+                shutil.rmtree(self.temp_dirpath)
+                print("    * Temporary files removed: {}".format(self.temp_dirpath))
+            except Exception as exc:
+                log.error("ERROR: Something unexpected happending during cleanup")
+                log.error(exc)
+                exit(1)
+            print()
+
+    def __output_summary(self):
+        print("  Summary:")
+        print(
+            "    * {} events were collected.".format(collectors._stats["event_count"])
+        )
+        if collectors._stats["first_event"] and collectors._stats["last_event"]:
+            print(
+                "    * First event at: {}".format(
+                    collectors._stats["first_event"].isoformat()
+                )
+            )
+            print(
+                "    * Last event at: {}".format(
+                    collectors._stats["last_event"].isoformat()
+                )
+            )
+        print()
+        print("  Results:")
+        print("    * Results HTML file: {}".format(self.args.output))
+        print()
+        print(" ---------------------")
+        print("| Execution finished! |")
+        print(" ---------------------")
+
+
+UyuniLogsVisualizer(args).start()
