@@ -2,7 +2,7 @@
 A tool to graphically visualize events from Uyuni logs and Salt events bus
 
 ```console
-usage: generate_timeline.py [-h] [-o OUTPUT_FILE]
+usage: run.py [-h] [-o OUTPUT_FILE]
                             [-f FROM_DATETIME] [-u UNTIL_DATETIME]
                             [-p LOGS_PATH] [-s SUPPORTCONFIG_PATH]
 
