@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 #
 # Uyuni Logs Visualizer
 #
@@ -7,7 +6,6 @@
 # Author: Pablo Suárez Hernández <psuarezhernandez@suse.com>
 #
 
-import argparse
 import datetime
 import json
 import logging
@@ -20,8 +18,8 @@ import tempfile
 
 import jinja2
 
-from utils import collectors
-from utils.constants import (
+from uyuni_logs_visualizer.utils import collectors
+from uyuni_logs_visualizer.utils.constants import (
     CLI_FANCY_DONE,
     CLI_FANCY_TITLE,
     COLLECTORS_AND_FILES_MAPPING,
@@ -29,60 +27,6 @@ from utils.constants import (
 )
 
 log = logging.getLogger(__name__)
-
-parser = argparse.ArgumentParser(description="Generate a HTML view of Uyuni logs.")
-parser.add_argument(
-    "-o",
-    "--output",
-    metavar="OUTPUT_FILE",
-    action="store",
-    type=str,
-    default="output.html",
-    help="generated output HTML file (default: output.html)",
-)
-
-parser.add_argument(
-    "-f",
-    "--from",
-    metavar="FROM_DATETIME",
-    action="store",
-    dest="_from",
-    type=str,
-    help="Only events after this datetime. (Example: 2021-11-11T16:23:28.804535)",
-)
-
-parser.add_argument(
-    "-u",
-    "--until",
-    metavar="FROM_DATETIME",
-    action="store",
-    dest="_until",
-    type=str,
-    help="Only events before this datetime. (Example: 2021-11-11T16:23:28.804535)",
-)
-
-parser.add_argument(
-    "-p",
-    "--logs-path",
-    type=str,
-    help="Path to logs files",
-)
-
-parser.add_argument(
-    "-s",
-    "--supportconfig-path",
-    type=str,
-    help="Path to supportconfig tarball",
-)
-
-parser.add_argument(
-    "-sk",
-    "--skip-cleanup",
-    type=str,
-    help="Skip cleanup of temporary files",
-)
-
-args = parser.parse_args()
 
 
 class UyuniLogsVisualizer:
@@ -266,6 +210,3 @@ class UyuniLogsVisualizer:
         print("  Results:")
         print("    * Results HTML file: {}".format(self.args.output))
         print(CLI_FANCY_DONE)
-
-
-UyuniLogsVisualizer(args).start()

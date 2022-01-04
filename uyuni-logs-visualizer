@@ -1,0 +1,70 @@
+#!/usr/bin/python3
+#
+# Uyuni Logs Visualizer
+#
+# A tool to graphically visualize events from Uyuni logs and Salt events bus
+#
+# Author: Pablo Suárez Hernández <psuarezhernandez@suse.com>
+#
+
+import argparse
+import logging
+
+from uyuni_logs_visualizer import UyuniLogsVisualizer
+
+log = logging.getLogger(__name__)
+
+parser = argparse.ArgumentParser(description="Generate a HTML view of Uyuni logs.")
+parser.add_argument(
+    "-o",
+    "--output",
+    metavar="OUTPUT_FILE",
+    action="store",
+    type=str,
+    default="output.html",
+    help="generated output HTML file (default: output.html)",
+)
+
+parser.add_argument(
+    "-f",
+    "--from",
+    metavar="FROM_DATETIME",
+    action="store",
+    dest="_from",
+    type=str,
+    help="Only events after this datetime. (Example: 2021-11-11T16:23:28.804535)",
+)
+
+parser.add_argument(
+    "-u",
+    "--until",
+    metavar="FROM_DATETIME",
+    action="store",
+    dest="_until",
+    type=str,
+    help="Only events before this datetime. (Example: 2021-11-11T16:23:28.804535)",
+)
+
+parser.add_argument(
+    "-p",
+    "--logs-path",
+    type=str,
+    help="Path to logs files",
+)
+
+parser.add_argument(
+    "-s",
+    "--supportconfig-path",
+    type=str,
+    help="Path to supportconfig tarball",
+)
+
+parser.add_argument(
+    "-sk",
+    "--skip-cleanup",
+    type=str,
+    help="Skip cleanup of temporary files",
+)
+
+args = parser.parse_args()
+UyuniLogsVisualizer(args).start()
