@@ -3,7 +3,10 @@ A tool to graphically visualize events from Uyuni logs and Salt events bus. The 
 
 When running this tool, you provide a path where the different logs files are stored, i.a. "rhn_web_ui.log", "master" or "salt-events.txt", or you can pass the path to your "supportconfig" tarball, then the tool will temporary unpack the supportconfig and collect the logs file from it.
 
-### Requirements:
+The generated HTML is using:
+- https://github.com/visjs/vis-timeline
+
+### Runtime requirements:
 - Python3
 - Jinja2
 
@@ -92,6 +95,8 @@ optional arguments:
 Generated HTML:
 ![image](https://user-images.githubusercontent.com/7229203/141479052-9fd712eb-45aa-4816-a0a1-7b599ec4a81f.png)
 
+### RPM packages:
+This project is building at Open Build Service: https://build.opensuse.org/package/show/home:PSuarezHernandez/uyuni-logs-visualizer
 
 ### Authors:
 - Pablo Suárez Hernández - <psuarezhernandez@suse.de>
